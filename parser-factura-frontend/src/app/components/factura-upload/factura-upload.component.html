@@ -1,0 +1,157 @@
+<div class="container">
+  <div class="header">
+    <h1>Procesador de Facturas</h1>
+    <p class="subtitle">Subí una imagen o PDF de tu factura para extraer la información</p>
+  </div>
+
+  <div class="upload-section">
+    <div class="upload-area" [class.has-file]="selectedFile()" [class.processing]="isProcessing()">
+      <input
+        type="file"
+        id="file-input"
+        accept="image/*,application/pdf"
+        capture="environment"
+        (change)="onFileSelected($event)"
+        [disabled]="isProcessing()"
+        class="file-input"
+      />
+      
+      <label for="file-input" class="upload-label">
+        @if (!selectedFile()) {
+          <div class="upload-content">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 15V3M12 3L8 7M12 3L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L2 19C2 20.1046 2.89543 21 4 21L20 21C21.1046 21 22 20.1046 22 19L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="upload-text">Tocá para seleccionar o tomar una foto</p>
+            <p class="upload-hint">Soporta imágenes (JPG, PNG) y PDFs</p>
+          </div>
+        } @else {
+          <div class="file-info">
+            <svg class="file-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="file-details">
+              <p class="file-name">{{ selectedFile()?.name }}</p>
+              <p class="file-size">{{ formatFileSize(selectedFile()?.size || 0) }}</p>
+            </div>
+            <button type="button" class="remove-btn" (click)="reset()" [disabled]="isProcessing()">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </label>
+
+      @if (previewUrl()) {
+        <div class="preview">
+          <img [src]="previewUrl()!" alt="Preview" />
+        </div>
+      }
+    </div>
+
+    @if (error()) {
+      <div class="error-message">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <p>{{ error() }}</p>
+      </div>
+    }
+
+    <button
+      type="button"
+      class="process-btn"
+      (click)="procesarFactura()"
+      [disabled]="!selectedFile() || isProcessing()"
+    >
+      @if (isProcessing()) {
+        <svg class="spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+            <animate attributeName="stroke-dasharray" dur="2s" values="0 31.416;15.708 15.708;0 31.416;0 31.416" repeatCount="indefinite"/>
+            <animate attributeName="stroke-dashoffset" dur="2s" values="0;-15.708;-31.416;-31.416" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        <span>Procesando...</span>
+      } @else {
+        <span>Procesar Factura</span>
+      }
+    </button>
+  </div>
+
+  @if (resultado()) {
+    <div class="result-section" [class.error]="resultado()?.status === 'ERROR'">
+      @if (resultado()?.status === 'ERROR') {
+        <div class="result-header error">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8V12M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h2>Error al procesar</h2>
+        </div>
+        <div class="result-content">
+          <p class="error-text">{{ resultado()?.motivo }}</p>
+        </div>
+      } @else {
+        <div class="result-header success">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2>Factura procesada correctamente</h2>
+        </div>
+        <div class="result-content">
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Cliente:</span>
+              <span class="info-value">{{ resultado()?.nombre || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Entidad:</span>
+              <span class="info-value">{{ resultado()?.entidad || '-' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Fecha:</span>
+              <span class="info-value">{{ formatDate(resultado()?.fecha) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Tipo de Comprobante:</span>
+              <span class="info-value">{{ resultado()?.tipoComprobante || '-' }}</span>
+            </div>
+            @if (resultado()?.tipoComprobante === 'Factura' && resultado()?.tipo_factura) {
+              <div class="info-item">
+                <span class="info-label">Tipo Factura:</span>
+                <span class="info-value">{{ resultado()?.tipo_factura }}</span>
+              </div>
+            }
+            <div class="info-item">
+              <span class="info-label">Número:</span>
+              <span class="info-value">{{ resultado()?.nro_factura || '-' }}</span>
+            </div>
+            <div class="info-item total">
+              <span class="info-label">Importe Total:</span>
+              <span class="info-value">{{ formatCurrency(resultado()?.importe) }}</span>
+            </div>
+          </div>
+
+          @if (resultado()?.items && resultado()!.items!.length > 0) {
+            <div class="items-section">
+              <h3>Items</h3>
+              <div class="items-list">
+                @for (item of resultado()!.items; track $index) {
+                  <div class="item-row">
+                    <div class="item-quantity">{{ item.cantidad }}x</div>
+                    <div class="item-description">{{ item.descripcion }}</div>
+                    <div class="item-amount">{{ formatCurrency(item.importe) }}</div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,24 @@
+{
+  "server": {
+    "port": 9401,
+    "host": "0.0.0.0"
+  },
+  "cors": {
+    "enabled": true,
+    "origin": "*"
+  },
+  "ai": {
+    "provider": "lmstudio",
+    "lmstudio": {
+      "baseUrl": "http://127.0.0.1:1234",
+      "model": "google/gemma-3-12b",
+      "timeout": 30000,
+      "maxTokens": 2000,
+      "temperature": 0.1
+    }
+  },
+  "logging": {
+    "level": "info",
+    "format": "json"
+  }
+}
