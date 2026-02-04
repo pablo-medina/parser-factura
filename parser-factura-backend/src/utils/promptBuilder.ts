@@ -65,6 +65,23 @@ IMPORTANTE:
 - El JSON debe ser válido y parseable.
 - Para campos opcionales que no existen, usa null en lugar de undefined.
 
+FORMATO DE NÚMEROS ARGENTINOS (CRÍTICO):
+- En Argentina se usa el formato: PUNTO (.) como separador de MILES y COMA (,) como separador DECIMAL.
+- Ejemplos de conversión:
+  * "$10.043,25" → 10043.25 (número, sin comillas, sin $)
+  * "$1.234,56" → 1234.56
+  * "$500,75" → 500.75
+  * "$10.000" → 10000 (sin decimales)
+  * "1.234.567,89" → 1234567.89
+- REGLAS DE CONVERSIÓN:
+  1. Elimina TODOS los símbolos de moneda ($, ARS, pesos, etc.)
+  2. Elimina TODOS los puntos (.) que son separadores de miles
+  3. Reemplaza la coma (,) por punto (.) para el separador decimal
+  4. El resultado debe ser un NÚMERO puro (type: number en JSON), NO un string
+  5. Si el importe no tiene decimales, simplemente elimina los puntos y símbolos
+- NUNCA devuelvas importes como strings con "$", puntos o comas. SIEMPRE conviértelos a números según estas reglas.
+- Esto aplica a TODOS los campos numéricos: importe (total), importe (en items), y cantidad.
+
 FORMATO DE RESPUESTA ESPERADO:
 {
   "status": "OK" | "ERROR",
