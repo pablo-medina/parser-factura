@@ -15,6 +15,13 @@
       "timeout": 30000,
       "maxTokens": 2000,
       "temperature": 0.1
+    },
+    "deepseek": {
+      "baseUrl": "https://api.deepseek.com",
+      "model": "deepseek-chat",
+      "timeout": 30000,
+      "maxTokens": 2000,
+      "temperature": 0.1
     }
   },
   "logging": {

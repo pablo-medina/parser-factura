@@ -35,6 +35,14 @@ export interface Config {
       maxTokens: number;
       temperature: number;
     };
+    deepseek: {
+      baseUrl?: string;
+      model: string;
+      apiKey?: string;
+      timeout?: number;
+      maxTokens?: number;
+      temperature?: number;
+    };
   };
   logging: {
     level: string;
